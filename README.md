@@ -1,15 +1,28 @@
-oclif-hello-world
+SVG Tool
 =================
 
-Development usage:
+## Development Usage
 
-Put the svg files in the `svgs` directory.
-The output will be in the `output` directory.
-The flag `-c` is the ones we want to find and replace inside the SVG files.
+- Put the SVG files in the `svgs` directory.
+- The output will be in the `output` directory.
+- The `-c` flag is used to specify the parameters to find and replace inside the SVG files.
+
+## Command Example
 
 ```bash
 ./bin/dev process svgs output -c width=100 -c height=32 -c fill=#000000
 ```
+
+Command to use: process
+First parameter is the input directory.
+Second parameter is the output directory.
+The `-c` flag is used to specify the parameters to find and replace inside the SVG files.
+For example: 
+  - `width=100` means it will find the width attribute inside the <svg> tag and replace its value with 100.
+  - `fill=#000000` means it will find the fill attribute and replace its value with #000000.
+
+For width and height we only look inside the <svg> tag
+other than that we look everywhere
 
 oclif example Hello World CLI
 

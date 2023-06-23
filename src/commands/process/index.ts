@@ -90,6 +90,9 @@ hello friend from oclif! (./src/commands/hello/index.ts)
     content: string,
     changeParams: string[]
   ): string {
+    //For width and height we only look inside the <svg> tag
+    //other than that we look everywhere
+
     // Find the index of the closing bracket of the opening <svg> tag
     const svgStartIndex = content.indexOf("<svg");
     const svgEndIndex = content.indexOf(">", svgStartIndex);

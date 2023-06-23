@@ -131,25 +131,17 @@ processSvgContent(filename: string, content: string, changeParams: string[]): st
 
   export default ${pascalCaseFilename};`;
 
-//   const regex = /<g\s+style="([^"]+)"(.*)>/g;
-//   const replacement = `<g style={{ $1 }} $2>`;
-//   const newContent = content.replace(regex, replacement);
+  const regex = /<(\w+)(.*)style="([^"]+)"\s*(.*)>/g;
+const newContent = content.replace(regex, function(match: string, p1: string, p2: string, p3: string, p4: string) {
 
-  const regex = /<g\s+style="([^"]+)"\s*(.*)>/g;
-const newContent = content.replace(regex, function(match: string, p1: string, p2: string) {
-    console.log("p10", p1);
-    console.log("p20", p2);
-    
-    const style = p1.replace(/-(\w)/g, function(match: string, p1: string) {
-        console.log("p1", p1);
-        return p1.toUpperCase();
+    const style = p3.replace(/-(\w)/g, function(match: string, p3: string) {
+        return p3.toUpperCase();
     });
 
     // const style = 'mix-blend-mode:multiply';
     const regex = /:(\w+)/g;
     const newStyle = style.replace(regex, ':"$1"');
-    console.log(newStyle); // mix-blend-mode:"multiply"
-    return `<g style={{ ${newStyle} }} ${p2}>`;
+    return `<${p1} ${p2} style={{ ${newStyle} }} ${p4}>`;
 });
 
     const combinedContent = `${multiLineStart}${newContent}${multiLineEnd}`;

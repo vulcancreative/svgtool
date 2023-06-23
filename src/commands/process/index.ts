@@ -13,8 +13,8 @@ hello friend from oclif! (./src/commands/hello/index.ts)
 
   static flags = {
     change: Flags.string({
-        char: 'c', 
-        description: 'parameter to change, example: width=100', 
+        char: 'c',
+        description: 'parameter to change, example: width=100',
         required: true,
         multiple: true,
     }),
@@ -31,8 +31,6 @@ hello friend from oclif! (./src/commands/hello/index.ts)
     this.log(JSON.stringify(flags));
 
     this.processSvgFiles(args.inputFolder, args.outputFolder, flags.change);
-
-    this.log(`hello ${args.inputFolder}, ${args.outputFolder} from ${flags.change}! (./src/commands/hello/index.ts)`)
   }
 
   processSvgFiles(inputFolder: string, outputFolder: string, changeParams: string[]): void {
@@ -40,6 +38,10 @@ hello friend from oclif! (./src/commands/hello/index.ts)
     const files = fs.readdirSync(inputFolder);
 
     for (const fileName of files) {
+      // Skip files starting with a dot
+      if (fileName.startsWith('.')) {
+        continue;
+      }
       // Construct the input and output file paths
       const inputFilePath = path.join(inputFolder, fileName);
       const outputFileName = fileName.replace('.svg', '.tsx');
@@ -78,7 +80,7 @@ processSvgContent(filename: string, content: string, changeParams: string[]): st
 
     let whParams: string[];
     let otherParams: string[];
-    
+
     [whParams, otherParams] = changeParams.reduce<string[][]>(([wh, other], changeParam) => {
         const [attr] = changeParam.split('=');
         if (attr === 'width' || attr === 'height') {
@@ -87,7 +89,7 @@ processSvgContent(filename: string, content: string, changeParams: string[]): st
             return [wh, [...other, changeParam]];
         }
     }, [[], []]);
-    
+
     // Apply the changes to the width and height attributes
     for (const changeParam of whParams) {
         const [attr, value] = changeParam.split('=');
@@ -98,7 +100,7 @@ processSvgContent(filename: string, content: string, changeParams: string[]): st
 
     // Replace the modified content back into the original string
     content = content.substring(0, svgStartIndex) + svgContent + content.substring(svgEndIndex);
-    
+
     // Apply the changes to the other attributes
     for (const changeParam of otherParams) {
         const [attr, value] = changeParam.split('=');
@@ -119,16 +121,38 @@ processSvgContent(filename: string, content: string, changeParams: string[]): st
       width?: string;
       height?: string;
     }
-    
+
     const ${pascalCaseFilename} = ({ fill, width, height }: IIcons) => {
       return (
         <div>`;
     const multiLineEnd = `    </div>
     );
   };
-  
+
   export default ${pascalCaseFilename};`;
-    const combinedContent = `${multiLineStart}${content}${multiLineEnd}`;
+
+//   const regex = /<g\s+style="([^"]+)"(.*)>/g;
+//   const replacement = `<g style={{ $1 }} $2>`;
+//   const newContent = content.replace(regex, replacement);
+
+  const regex = /<g\s+style="([^"]+)"\s*(.*)>/g;
+const newContent = content.replace(regex, function(match: string, p1: string, p2: string) {
+    console.log("p10", p1);
+    console.log("p20", p2);
+    
+    const style = p1.replace(/-(\w)/g, function(match: string, p1: string) {
+        console.log("p1", p1);
+        return p1.toUpperCase();
+    });
+
+    // const style = 'mix-blend-mode:multiply';
+    const regex = /:(\w+)/g;
+    const newStyle = style.replace(regex, ':"$1"');
+    console.log(newStyle); // mix-blend-mode:"multiply"
+    return `<g style={{ ${newStyle} }} ${p2}>`;
+});
+
+    const combinedContent = `${multiLineStart}${newContent}${multiLineEnd}`;
 
     return combinedContent;
 }

@@ -1,6 +1,16 @@
 oclif-hello-world
 =================
 
+Development usage:
+
+Put the svg files in the `svgs` directory.
+The output will be in the `output` directory.
+The flag `-c` is the ones we want to find and replace inside the SVG files.
+
+```bash
+./bin/dev process svgs output -c width=100 -c height=32 -c fill=#000000
+```
+
 oclif example Hello World CLI
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)

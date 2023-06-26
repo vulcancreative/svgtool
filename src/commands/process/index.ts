@@ -15,7 +15,7 @@ hello friend from oclif! (./src/commands/hello/index.ts)
     change: Flags.string({
       char: "c",
       description: "parameter to change, example: width=100",
-      required: true,
+      required: false,
       multiple: true,
     }),
   };
@@ -43,7 +43,7 @@ hello friend from oclif! (./src/commands/hello/index.ts)
   processSvgFiles(
     inputFolder: string,
     outputFolder: string,
-    changeParams: string[]
+    changeParams: string[] | undefined
   ): void {
     // Get a list of all files in the input folder
     const files = fs.readdirSync(inputFolder);
@@ -88,53 +88,55 @@ hello friend from oclif! (./src/commands/hello/index.ts)
   processSvgContent(
     filename: string,
     content: string,
-    changeParams: string[]
+    changeParams: string[] | undefined
   ): string {
     //For width and height we only look inside the <svg> tag
     //other than that we look everywhere
 
-    // Find the index of the closing bracket of the opening <svg> tag
-    const svgStartIndex = content.indexOf("<svg");
-    const svgEndIndex = content.indexOf(">", svgStartIndex);
+    if (changeParams) {
+      // Find the index of the closing bracket of the opening <svg> tag
+      const svgStartIndex = content.indexOf("<svg");
+      const svgEndIndex = content.indexOf(">", svgStartIndex);
 
-    // Extract the content between <svg> and </svg>
-    let svgContent = content.substring(svgStartIndex, svgEndIndex);
+      // Extract the content between <svg> and </svg>
+      let svgContent = content.substring(svgStartIndex, svgEndIndex);
 
-    let whParams: string[];
-    let otherParams: string[];
+      let whParams: string[];
+      let otherParams: string[];
 
-    [whParams, otherParams] = changeParams.reduce<string[][]>(
-      ([wh, other], changeParam) => {
-        const [attr] = changeParam.split("=");
-        if (attr === "width" || attr === "height") {
-          return [[...wh, changeParam], other];
-        } else {
-          return [wh, [...other, changeParam]];
-        }
-      },
-      [[], []]
-    );
+      [whParams, otherParams] = changeParams.reduce<string[][]>(
+        ([wh, other], changeParam) => {
+          const [attr] = changeParam.split("=");
+          if (attr === "width" || attr === "height") {
+            return [[...wh, changeParam], other];
+          } else {
+            return [wh, [...other, changeParam]];
+          }
+        },
+        [[], []]
+      );
 
-    // Apply the changes to the width and height attributes
-    for (const changeParam of whParams) {
-      const [attr, value] = changeParam.split("=");
-      const pattern = new RegExp(`${attr}="[^"]+"`, "g");
-      const replacement = `${attr}="${value}"`;
-      svgContent = svgContent.replace(pattern, replacement);
-    }
+      // Apply the changes to the width and height attributes
+      for (const changeParam of whParams) {
+        const [attr, value] = changeParam.split("=");
+        const pattern = new RegExp(`${attr}="[^"]+"`, "g");
+        const replacement = `${attr}="${value}"`;
+        svgContent = svgContent.replace(pattern, replacement);
+      }
 
-    // Replace the modified content back into the original string
-    content =
-      content.substring(0, svgStartIndex) +
-      svgContent +
-      content.substring(svgEndIndex);
+      // Replace the modified content back into the original string
+      content =
+        content.substring(0, svgStartIndex) +
+        svgContent +
+        content.substring(svgEndIndex);
 
-    // Apply the changes to the other attributes
-    for (const changeParam of otherParams) {
-      const [attr, value] = changeParam.split("=");
-      const pattern = new RegExp(`${attr}="[^"]+"`, "g");
-      const replacement = `${attr}="${value}"`;
-      content = content.replace(pattern, replacement);
+      // Apply the changes to the other attributes
+      for (const changeParam of otherParams) {
+        const [attr, value] = changeParam.split("=");
+        const pattern = new RegExp(`${attr}="[^"]+"`, "g");
+        const replacement = `${attr}="${value}"`;
+        content = content.replace(pattern, replacement);
+      }
     }
 
     const pascalCaseFilename = filename.replace(
